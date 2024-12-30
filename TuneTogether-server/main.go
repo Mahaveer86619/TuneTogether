@@ -45,7 +45,7 @@ func main() {
 }
 
 func handleFunctions(mux *http.ServeMux) {
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /test", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/favicon.ico" {
 			return
 		}

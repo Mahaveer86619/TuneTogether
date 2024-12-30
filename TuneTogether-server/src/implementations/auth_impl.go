@@ -152,7 +152,7 @@ func RegisterUser(credentials *types.RegisteringCredentials) (*types.UserRespons
 
 	// Return credentials for successful registration
 	credsToReturn := types.GenUserResponseFromUser(user, token, refreshToken)
-	return credsToReturn, http.StatusOK, nil
+	return credsToReturn, http.StatusCreated, nil
 }
 
 func 	SendPassResetCode(email string) (int, error) {
