@@ -130,3 +130,110 @@ func DeleteGroupController(w http.ResponseWriter, r *http.Request) {
 	successResponse.SetMessage("Group deleted successfully")
 	successResponse.JSON(w)
 }
+
+func GetAllGroupMembersController(w http.ResponseWriter, r *http.Request) {
+	group_id := r.URL.Query().Get("id")
+	if group_id == "" {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(http.StatusBadRequest)
+		failureResponse.SetMessage("Invalid request body: id is required")
+		failureResponse.JSON(w)
+		return
+	}
+
+	groupMembers, statusCode, err := impl.GetGroupMembers(group_id)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(statusCode)
+		failureResponse.SetMessage(err.Error())
+		failureResponse.JSON(w)
+		return
+	}
+
+	successResponse := &types.Success{}
+	successResponse.SetStatusCode(statusCode)
+	successResponse.SetData(groupMembers)
+	successResponse.SetMessage("Group members fetched successfully")
+	successResponse.JSON(w)
+}
+
+func AddMemberToGroupController(w http.ResponseWriter, r *http.Request) {
+	var groupMember types.GroupMemberJoinRequest
+	err := json.NewDecoder(r.Body).Decode(&groupMember)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(http.StatusBadRequest)
+		failureResponse.SetMessage("Invalid request body")
+		failureResponse.JSON(w)
+		return
+	}
+
+	statusCode, err := impl.AddGroupMember(&groupMember)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(statusCode)
+		failureResponse.SetMessage(err.Error())
+		failureResponse.JSON(w)
+		return
+	}
+
+	successResponse := &types.Success{}
+	successResponse.SetStatusCode(statusCode)
+	successResponse.SetData(nil)
+	successResponse.SetMessage("Member added to group successfully")
+	successResponse.JSON(w)
+}
+
+func UpdateGroupMemberController(w http.ResponseWriter, r *http.Request) {
+	var groupMember types.GroupMemberUpdateRequest
+	err := json.NewDecoder(r.Body).Decode(&groupMember)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(http.StatusBadRequest)
+		failureResponse.SetMessage("Invalid request body")
+		failureResponse.JSON(w)
+		return
+	}
+
+	statusCode, err := impl.UpdateGroupMember(&groupMember)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(statusCode)
+		failureResponse.SetMessage(err.Error())
+		failureResponse.JSON(w)
+		return
+	}
+
+	successResponse := &types.Success{}
+	successResponse.SetStatusCode(statusCode)
+	successResponse.SetData(nil)
+	successResponse.SetMessage("Member updated successfully")
+	successResponse.JSON(w)
+}
+
+func RemoveMemberFromGroupController(w http.ResponseWriter, r *http.Request) {
+	group_id := r.URL.Query().Get("group_id")
+	user_id := r.URL.Query().Get("user_id")
+	if group_id == "" || user_id == "" {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(http.StatusBadRequest)
+		failureResponse.SetMessage("Invalid request body: group_id and user_id are required")
+		failureResponse.JSON(w)
+		return
+	}
+
+	statusCode, err := impl.DeleteGroupMember(group_id, user_id)
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(statusCode)
+		failureResponse.SetMessage(err.Error())
+		failureResponse.JSON(w)
+		return
+	}
+
+	successResponse := &types.Success{}
+	successResponse.SetStatusCode(statusCode)
+	successResponse.SetData(nil)
+	successResponse.SetMessage("Member removed successfully")
+	successResponse.JSON(w)
+}

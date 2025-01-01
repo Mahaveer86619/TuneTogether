@@ -79,7 +79,7 @@ func CreateTables(conn *sql.DB) error {
 			created_at TIMESTAMP DEFAULT NOW(),
 			updated_at TIMESTAMP DEFAULT NOW()
 		);`,
-		`CREATE TABLE IF NOT EXISTS groups_members (
+		`CREATE TABLE IF NOT EXISTS group_members (
 			id UUID PRIMARY KEY,
   			group_id UUID NOT NULL REFERENCES groups(id),
 			user_id UUID NOT NULL REFERENCES users(id),

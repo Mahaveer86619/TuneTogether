@@ -197,22 +197,167 @@ func UpdateGroup(group *types.GroupUpdateRequest) (*types.Group, int, error) {
 func DeleteGroup(group_id string) (int, error) {
 	conn := db.GetDBConnection()
 
-	search_query := `SELECT * FROM groups WHERE id = $1`
 	del_query := "DELETE FROM groups WHERE id = $1"
 
-	// Check if the group exists
-	_, err := conn.Exec(search_query, group_id)
+	// Execute the DELETE query
+	result, err := conn.Exec(del_query, group_id)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error deleting row: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error checking affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return http.StatusNotFound, fmt.Errorf("group not found")
+	}
+
+	return http.StatusOK, nil
+}
+
+func GetGroupMembers(group_id string) ([]*types.GroupMembers, int, error) {
+	conn := db.GetDBConnection()
+
+	query := `
+	  SELECT *
+	  FROM group_members
+	  WHERE group_id = $1
+	`
+
+	rows, err := conn.Query(query, group_id)
+	if err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error querying group members: %w", err)
+	}
+	defer rows.Close()
+
+	var groupMembers []*types.GroupMembers
+	for rows.Next() {
+		var groupMember types.GroupMembers
+
+		if err := rows.Scan(
+			&groupMember.ID,
+			&groupMember.GroupID,
+			&groupMember.UserID,
+			&groupMember.Role,
+			&groupMember.JoinedAt,
+		); err != nil {
+			return nil, http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		groupMembers = append(groupMembers, &groupMember)
+	}
+
+	// Return empty array if no group members found
+	if len(groupMembers) == 0 {
+		return []*types.GroupMembers{}, http.StatusOK, nil
+	}
+
+	return groupMembers, http.StatusOK, nil
+}
+
+func AddGroupMember(request *types.GroupMemberJoinRequest) (int, error) {
+	conn := db.GetDBConnection()
+
+	search_query := `
+	  SELECT *
+	  FROM group_members
+	  WHERE group_id = $1 AND user_id = $2
+	`
+
+	insert_query := `
+	  INSERT INTO group_members (id, group_id, user_id, role, joined_at)
+	  VALUES ($1, $2, $3, $4, $5)
+	`
+
+	// Check if the group member already exists
+	var groupMemberRow types.GroupMembers
+	err := conn.QueryRow(
+		search_query,
+		request.GroupID,
+		request.UserID,
+	).Scan(
+		&groupMemberRow.ID,
+		&groupMemberRow.GroupID,
+		&groupMemberRow.UserID,
+		&groupMemberRow.Role,
+		&groupMemberRow.JoinedAt,
+	)
+
+	if err == nil {
+		// Member already exists
+		return http.StatusConflict, fmt.Errorf("group member already exists")
+	} else if err != sql.ErrNoRows {
+		return http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Add group member
+	_, err = conn.Exec(
+		insert_query,
+		uuid.New().String(),
+		request.GroupID,
+		request.UserID,
+		request.Role,
+		helpers.GetCurrentDateTimeAsString(),
+	)
+
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error adding group member: %w", err)
+	}
+
+	return http.StatusCreated, nil
+}
+
+func UpdateGroupMember(request *types.GroupMemberUpdateRequest) (int, error) {
+	conn := db.GetDBConnection()
+
+	search_query := `
+	  SELECT *
+	  FROM group_members
+	  WHERE group_id = $1 AND user_id = $2
+	`
+
+	update_query := `UPDATE group_members SET role = $1 WHERE group_id = $2 AND user_id = $3`
+
+	// Check if the group member already exists
+	_, err := conn.Exec(search_query, request.GroupID, request.UserID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return http.StatusNotFound, fmt.Errorf("group not found with id: %s", group_id)
+			return http.StatusNotFound, fmt.Errorf("group member not found")
 		}
 		return http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
 	} else {
-		_, err = conn.Exec(del_query, group_id)
+		// Update the group member
+		_, err = conn.Exec(update_query, request.Role, request.GroupID, request.UserID)
+
 		if err != nil {
-			return http.StatusInternalServerError, fmt.Errorf("error deleting row: %w", err)
+			return http.StatusInternalServerError, fmt.Errorf("error updating group member: %w", err)
 		}
+
+		return http.StatusOK, nil
+	}
+}
+
+func DeleteGroupMember(groupID string, groupMemberID string) (int, error) {
+	conn := db.GetDBConnection()
+
+	del_query := `DELETE FROM group_members WHERE group_id = $1 AND user_id = $2`
+
+	// Execute the DELETE query
+	result, err := conn.Exec(del_query, groupID, groupMemberID)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error deleting row: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error checking affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return http.StatusNotFound, fmt.Errorf("group member not found")
 	}
 
 	return http.StatusOK, nil

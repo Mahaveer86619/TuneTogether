@@ -35,3 +35,16 @@ type GroupMembers struct {
 	Role     string `json:"role"`
 	JoinedAt string `json:"joined_at"`
 }
+
+type GroupMemberJoinRequest struct {
+	GroupID string `json:"group_id"`
+	UserID  string `json:"user_id"`
+	Role    string `json:"role"`
+}
+
+type GroupMemberUpdateRequest struct {
+	GroupID string `json:"group_id"`
+	UserID  string `json:"user_id"`
+	Role    string `json:"role"`
+}
+

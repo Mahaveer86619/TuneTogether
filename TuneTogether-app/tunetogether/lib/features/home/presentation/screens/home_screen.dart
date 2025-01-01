@@ -8,7 +8,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   void _changeScreen(
     String routeName, {
     Map<String, dynamic>? arguments,
@@ -47,6 +46,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: _buildBody(context),
+    );
+  }
+
+  _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Text('Home'),
+    );
+  }
+
+  _buildBody(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('Home Screen'),
+        ],
+      ),
+    );
   }
 }

@@ -69,10 +69,15 @@ func handleFunctions(mux *http.ServeMux) {
 	mux.Handle("POST /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateGroupController)))
 	mux.Handle("PATCH /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.UpdateGroupController)))
 	mux.Handle("DELETE /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteGroupController)))
-	
+	mux.Handle("GET /api/v1/members", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetAllGroupMembersController)))
+	mux.Handle("POST /api/v1/members", middleware.AuthMiddleware(http.HandlerFunc(handlers.AddMemberToGroupController)))
+	mux.Handle("PATCH /api/v1/members", middleware.AuthMiddleware(http.HandlerFunc(handlers.UpdateGroupMemberController)))
+	mux.Handle("DELETE /api/v1/members", middleware.AuthMiddleware(http.HandlerFunc(handlers.RemoveMemberFromGroupController)))
+
 	//* Admin routes
 	mux.Handle("GET /api/v1/users/all", middleware.LoggingMiddleware(http.HandlerFunc(handlers.GetAllUsersController)))
 	mux.Handle("GET /api/v1/groups/all", middleware.LoggingMiddleware(http.HandlerFunc(handlers.GetAllGroupsController)))
+	mux.Handle("GET /api/v1/members/all", middleware.LoggingMiddleware(http.HandlerFunc(handlers.GetAllGroupMembersController)))
 	// mux.HandleFunc("POST /api/v1/dev/email", middleware.LoggingMiddleware(handlers.SendBasicEmailHandler))
 	// mux.HandleFunc("POST /api/v1/dev/html_email", middleware.LoggingMiddleware(handlers.SendBasicHTMLEmailHandler))
 }
