@@ -72,33 +72,26 @@ func CreateTables(conn *sql.DB) error {
 		`CREATE TABLE IF NOT EXISTS groups (
   			id UUID PRIMARY KEY,
 			name TEXT UNIQUE NOT NULL,
-			owner_id UUID NOT NULL REFERENCES users(id),
-			display_pic_url TEXT,
+			description TEXT NOT NULL,
+			creator_id UUID NOT NULL REFERENCES users(id),
+			display_picture TEXT,
+			type TEXT DEFAULT 'public',
 			created_at TIMESTAMP DEFAULT NOW(),
 			updated_at TIMESTAMP DEFAULT NOW()
 		);`,
 		`CREATE TABLE IF NOT EXISTS groups_members (
+			id UUID PRIMARY KEY,
   			group_id UUID NOT NULL REFERENCES groups(id),
 			user_id UUID NOT NULL REFERENCES users(id),
 			role TEXT DEFAULT 'member',
-			joined_at TIMESTAMP DEFAULT NOW(),
-			PRIMARY KEY (group_id, user_id)
-		);`,
-		`CREATE TABLE IF NOT EXISTS rooms (
-			id UUID PRIMARY KEY,
-			group_id UUID NOT NULL REFERENCES groups(id),
-			created_by UUID NOT NULL REFERENCES users(id),
-			video_url TEXT NOT NULL,
-			crop_start TIMESTAMP,
-			crop_end TIMESTAMP,
-			created_at TIMESTAMP DEFAULT NOW()
+			joined_at TIMESTAMP DEFAULT NOW()
 		);`,
 		`CREATE TABLE IF NOT EXISTS messages (
 			id UUID PRIMARY KEY,
-			room_id UUID NOT NULL REFERENCES rooms(id),
-			user_id UUID NOT NULL REFERENCES users(id),
+  			sender_id UUID NOT NULL REFERENCES users(id),
+  			group_id UUID NOT NULL REFERENCES groups(id),
 			content TEXT NOT NULL,
-			created_at TIMESTAMP DEFAULT NOW()
+			timestamp TIMESTAMP DEFAULT NOW()
 		);`,
 	}
 
