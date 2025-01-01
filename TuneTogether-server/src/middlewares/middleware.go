@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Mahaveer86619/TuneTogether_server/src/types"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -17,7 +18,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+			failureResponse := types.Failure{}
+			failureResponse.SetStatusCode(http.StatusUnauthorized)
+			failureResponse.SetMessage("Authorization header is required")
+			failureResponse.JSON(w)
 			return
 		}
 
@@ -28,10 +32,14 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			failureResponse := types.Failure{}
+			failureResponse.SetStatusCode(http.StatusUnauthorized)
+			failureResponse.SetMessage("Invalid token")
+			failureResponse.JSON(w)
 			return
 		}
 
+		// Token is valid, proceed to set the context
 		ctx := context.WithValue(r.Context(), userContextKey, claims.Email)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

@@ -89,6 +89,9 @@ class _SignInScreenState extends State<SignInScreen> {
         if (state is AuthError) {
           _showMessage(state.error);
         }
+        if (state is Authenticated) {
+          _changeScreen('/home', isReplacement: true);
+        }
       },
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

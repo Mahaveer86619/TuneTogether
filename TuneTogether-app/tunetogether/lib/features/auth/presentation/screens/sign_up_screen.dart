@@ -92,6 +92,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         if (state is AuthError) {
           _showMessage(state.error);
         }
+        if (state is Authenticated) {
+          _changeScreen('/home', isReplacement: true);
+        }
       },
       child: SingleChildScrollView(
         child: Column(

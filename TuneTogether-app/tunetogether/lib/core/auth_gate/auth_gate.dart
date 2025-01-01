@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tunetogether/common/app_user_cubit/app_user_cubit.dart';
 import 'package:tunetogether/core/services/notifications.dart';
 import 'package:tunetogether/features/auth/presentation/screens/onboarding_screen.dart';
+import 'package:tunetogether/features/home/presentation/screens/home_screen.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
@@ -37,7 +38,7 @@ class _AuthGateState extends State<AuthGate> {
     return BlocBuilder<AppUserCubit, AppUserState>(
       builder: (context, state) {
         if (state is AppUserAuthenticated) {
-          return const Placeholder();
+          return const HomeScreen();
         } else {
           return const OnboardingScreen();
         }

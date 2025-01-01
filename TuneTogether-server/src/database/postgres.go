@@ -59,6 +59,8 @@ func CreateTables(conn *sql.DB) error {
 			email TEXT UNIQUE NOT NULL,
 			password TEXT NOT NULL,
 			profile_picture TEXT,
+			status TEXT DEFAULT 'active',
+			joined_groups JSONB DEFAULT '[]',
 			created_at TIMESTAMP DEFAULT NOW(),
 			updated_at TIMESTAMP DEFAULT NOW()
 		);`,

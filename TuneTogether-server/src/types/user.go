@@ -1,29 +1,35 @@
 package types
 
 type User struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	ProfilePic string `json:"profile_picture"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Email        string   `json:"email"`
+	Password     string   `json:"password"`
+	ProfilePic   string   `json:"profile_picture"`
+	Status       string   `json:"status"`
+	JoinedGroups []string `json:"joined_groups"`
+	CreatedAt    string   `json:"created_at"`
+	UpdatedAt    string   `json:"updated_at"`
 }
 
 type UserResponse struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	ProfilePic   string `json:"profile_picture"`
-	Token        string `json:"token"`
-	RefreshToken string `json:"refresh_token"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Email        string   `json:"email"`
+	ProfilePic   string   `json:"profile_picture"`
+	Status       string   `json:"status"`
+	JoinedGroups []string `json:"joined_groups"`
+	Token        string   `json:"token"`
+	RefreshToken string   `json:"refresh_token"`
 }
 
 type UserSafeResponse struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	ProfilePic   string `json:"profile_picture"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Email        string   `json:"email"`
+	ProfilePic   string   `json:"profile_picture"`
+	Status       string   `json:"status"`
+	JoinedGroups []string `json:"joined_groups"`
 }
 
 func GenUserResponseFromUser(u User, token string, refreshToken string) *UserResponse {
@@ -32,6 +38,8 @@ func GenUserResponseFromUser(u User, token string, refreshToken string) *UserRes
 		Name:         u.Name,
 		Email:        u.Email,
 		ProfilePic:   u.ProfilePic,
+		Status:       u.Status,
+		JoinedGroups: u.JoinedGroups,
 	}
 
 	resp.Token = token
@@ -46,17 +54,21 @@ func GenUserSafeResponseFromUser(u User) *UserSafeResponse {
 		Name:         u.Name,
 		Email:        u.Email,
 		ProfilePic:   u.ProfilePic,
+		Status:       u.Status,
+		JoinedGroups: u.JoinedGroups,
 	}
 
 	return resp
 }
 
-func GenUserFromUserSafeResponse(u UserSafeResponse, createdAt string, updatedAt string) *User { 
+func GenUserFromUserSafeResponse(u UserSafeResponse, createdAt string, updatedAt string) *User {
 	resp := &User{
 		ID:           u.ID,
 		Name:         u.Name,
 		Email:        u.Email,
 		ProfilePic:   u.ProfilePic,
+		Status:       u.Status,
+		JoinedGroups: u.JoinedGroups,
 		CreatedAt:    createdAt,
 		UpdatedAt:    updatedAt,
 	}

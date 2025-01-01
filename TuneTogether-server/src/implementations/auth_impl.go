@@ -2,14 +2,15 @@ package implementations
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
-	types "github.com/Mahaveer86619/TuneTogether_server/src/types"
 	db "github.com/Mahaveer86619/TuneTogether_server/src/database"
-	middleware "github.com/Mahaveer86619/TuneTogether_server/src/middlewares"
 	helpers "github.com/Mahaveer86619/TuneTogether_server/src/helpers"
+	middleware "github.com/Mahaveer86619/TuneTogether_server/src/middlewares"
 	services "github.com/Mahaveer86619/TuneTogether_server/src/services"
+	types "github.com/Mahaveer86619/TuneTogether_server/src/types"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -25,8 +26,9 @@ func AuthenticateUser(credentials *types.AuthenticatingCredentials) (*types.User
 	`
 
 	var authUser types.User
+	var joinedGroupsJSON string
 
-	// Search for user in database
+	// Search for user in database 
 	err := conn.QueryRow(
 		search_query,
 		credentials.Email,
@@ -36,6 +38,8 @@ func AuthenticateUser(credentials *types.AuthenticatingCredentials) (*types.User
 		&authUser.Email,
 		&authUser.Password,
 		&authUser.ProfilePic,
+		&authUser.Status,
+		&joinedGroupsJSON,
 		&authUser.CreatedAt,
 		&authUser.UpdatedAt,
 	)
@@ -47,7 +51,12 @@ func AuthenticateUser(credentials *types.AuthenticatingCredentials) (*types.User
 		return nil, http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
 	}
 
-	// User found, but password is wrong
+	// Unmarshal joined groups
+	if err := json.Unmarshal([]byte(joinedGroupsJSON), &authUser.JoinedGroups); err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error unmarshalling joined_groups: %w", err)
+	}
+
+	// Password validation
 	if credentials.Password != authUser.Password {
 		return nil, http.StatusUnauthorized, fmt.Errorf("wrong password")
 	}
@@ -63,8 +72,8 @@ func AuthenticateUser(credentials *types.AuthenticatingCredentials) (*types.User
 		return nil, http.StatusInternalServerError, fmt.Errorf("error creating refresh token: %w", err)
 	}
 
-	// Return credentials for successful authentication
-	credsToReturn := types.GenAuthResponseToReturn(authUser, token, refreshToken)
+	// Return response
+	credsToReturn := types.GenUserResponseFromUser(authUser, token, refreshToken)	
 	return credsToReturn, http.StatusOK, nil
 }
 
@@ -72,57 +81,39 @@ func RegisterUser(credentials *types.RegisteringCredentials) (*types.UserRespons
 	conn := db.GetDBConnection()
 
 	search_query := `
-	  SELECT *
+	  SELECT id
 	  FROM users
 	  WHERE email = $1
 	`
 	insert_query_users := `
-		INSERT INTO users (id, name, email, password, profile_picture, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
+		INSERT INTO users (id, name, email, password, profile_picture, status, joined_groups, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
 	`
 
-	// If user already exists, return error
-	var authUser types.User
+	// Check if the user already exists
+	var existingId string
+	err := conn.QueryRow(search_query, credentials.Email).Scan(&existingId)
 
-	userNotFound := false
-	err := conn.QueryRow(
-		search_query,
-		credentials.Email,
-	).Scan(
-		&authUser.ID,
-		&authUser.Name,
-		&authUser.Email,
-		&authUser.Password,
-		&authUser.ProfilePic,
-		&authUser.CreatedAt,
-		&authUser.UpdatedAt,
-	)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// User not found, so create user
-			userNotFound = true
-		} else {
-			return nil, http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
-		}
+	if err == nil {
+		return nil, http.StatusConflict, fmt.Errorf("user is already registered with email: %s", credentials.Email)
+	} else if err != sql.ErrNoRows {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error checking existing user: %w", err)
 	}
-
-	// User already registered
-	if !userNotFound {
-		return nil, http.StatusInternalServerError, fmt.Errorf("user is already registerd with email: %s", credentials.Email)
-	}
-
-	var user types.User
-	user.ID = uuid.New().String()
 
 	// Create user
+	var user types.User
+	user.ID = uuid.New().String()
+	var joinedGroupsJSON string
+
 	err = conn.QueryRow(
 		insert_query_users,
 		user.ID,
 		credentials.Name,
 		credentials.Email,
 		credentials.Password,
-		"",
+		"",                                   // profile_picture
+		"active",                             // status
+		"[]",                                 // joined_groups
 		helpers.GetCurrentDateTimeAsString(), // created_at
 		helpers.GetCurrentDateTimeAsString(), // updated_at
 	).Scan(
@@ -131,12 +122,19 @@ func RegisterUser(credentials *types.RegisteringCredentials) (*types.UserRespons
 		&user.Email,
 		&user.Password,
 		&user.ProfilePic,
+		&user.Status,
+		&joinedGroupsJSON,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, http.StatusInternalServerError, fmt.Errorf("error creating user: %w", err)
+	}
+
+	// Unmarshal joined groups
+	if err := json.Unmarshal([]byte(joinedGroupsJSON), &user.JoinedGroups); err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error unmarshalling joined_groups: %w", err)
 	}
 
 	// Generate tokens
@@ -155,7 +153,7 @@ func RegisterUser(credentials *types.RegisteringCredentials) (*types.UserRespons
 	return credsToReturn, http.StatusCreated, nil
 }
 
-func 	SendPassResetCode(email string) (int, error) {
+func SendPassResetCode(email string) (int, error) {
 	conn := db.GetDBConnection()
 
 	insert_query := `

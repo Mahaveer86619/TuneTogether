@@ -34,7 +34,7 @@ String getErrorMessage(int statusCode) {
     case 401:
       return 'Unauthorized. Wrong email or password.';
     case 404:
-      return 'User not found. No user exists with the provided email.';
+      return 'No user exists with the provided credentials.';
     case 500:
       return 'Server error. Please try again later.';
     default:

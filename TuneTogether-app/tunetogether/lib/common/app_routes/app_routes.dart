@@ -5,6 +5,7 @@ import 'package:tunetogether/features/auth/presentation/screens/forgot_pass_scre
 import 'package:tunetogether/features/auth/presentation/screens/onboarding_screen.dart';
 import 'package:tunetogether/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:tunetogether/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:tunetogether/features/home/presentation/screens/home_screen.dart';
 
 final routes = <String, WidgetBuilder>{
   // Auth
@@ -14,4 +15,7 @@ final routes = <String, WidgetBuilder>{
   '/forgot-password': (context) => const ForgotPassScreen(),
   '/sign-up': (context) => const SignUpScreen(),
   '/sign-in': (context) => const SignInScreen(),
+
+  // Home
+  '/home': (context) => const HomeScreen(),
 };

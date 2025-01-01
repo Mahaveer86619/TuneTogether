@@ -59,20 +59,20 @@ func handleFunctions(mux *http.ServeMux) {
 	// mux.HandleFunc("POST /api/v1/auth/check_code", middleware.LoggingMiddleware(handlers.CheckResetPassCodeController))
 	mux.HandleFunc("POST /api/v1/auth/refresh", middleware.LoggingMiddleware(handlers.RefreshTokenController))
 
-	// //* User routes
-	// mux.Handle("GET /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetUserByIDController)))
-	// mux.Handle("PATCH /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.UpdateUserController)))
-	// mux.Handle("DELETE /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteUserController)))
+	//* User routes 
+	mux.Handle("GET /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetUserByIDController)))
+	mux.Handle("PATCH /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.UpdateUserController)))
+	mux.Handle("DELETE /api/v1/users", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteUserController)))
 
-	// //* Notes routes
-	// mux.Handle("POST /api/v1/notes", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateNoteHandler)))
-	// mux.Handle("GET /api/v1/notes", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetAllNotesHandler)))
-	// mux.Handle("GET /api/v1/notes/id", middleware.AuthMiddleware(http.HandlerFunc(handlers.GetNoteByIdHandler)))
-	// mux.Handle("PATCH /api/v1/notes/id", middleware.AuthMiddleware(http.HandlerFunc(handlers.UpdateNoteHandler)))
-	// mux.Handle("DELETE /api/v1/notes/id", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteNoteHandler)))
-
-	// //* Admin routes
-	// mux.HandleFunc("GET /api/v1/admin/users", middleware.LoggingMiddleware(handlers.GetAllUsersController))
+	// //* Groups routes
+	// mux.Handle("GET /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateNoteHandler)))
+	// mux.Handle("POST /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateNoteHandler)))
+	// mux.Handle("PATCH /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateNoteHandler)))
+	// mux.Handle("DELETE /api/v1/groups", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateNoteHandler)))
+	
+	//* Admin routes
+	mux.Handle("GET /api/v1/users/all", middleware.LoggingMiddleware(http.HandlerFunc(handlers.GetAllUsersController)))
+	// mux.Handle("GET /api/v1/groups/all", middleware.LoggingMiddleware(http.HandlerFunc(handlers.GetAllGroupsController)))
 	// mux.HandleFunc("POST /api/v1/dev/email", middleware.LoggingMiddleware(handlers.SendBasicEmailHandler))
 	// mux.HandleFunc("POST /api/v1/dev/html_email", middleware.LoggingMiddleware(handlers.SendBasicHTMLEmailHandler))
 }
