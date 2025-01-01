@@ -6,6 +6,7 @@ import 'package:tunetogether/features/auth/presentation/screens/onboarding_scree
 import 'package:tunetogether/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:tunetogether/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:tunetogether/features/home/presentation/screens/home_screen.dart';
+import 'package:tunetogether/features/join_groups/presentation/screen/join_group_screen.dart';
 
 final routes = <String, WidgetBuilder>{
   // Auth
@@ -18,4 +19,5 @@ final routes = <String, WidgetBuilder>{
 
   // Home
   '/home': (context) => const HomeScreen(),
+  '/join-group': (context) => const JoinGroupsScreen(),
 };

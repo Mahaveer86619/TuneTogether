@@ -198,3 +198,92 @@ func DeleteUser(userId string) (int, error) {
 
 	return http.StatusOK, nil
 }
+
+func AddGroupToJoinedList(userId string, groupId string) (int, error) {
+	conn := db.GetDBConnection()
+
+	search_query := `SELECT joined_groups FROM users WHERE id = $1`
+	update_query := `UPDATE users SET joined_groups = $1 WHERE id = $2`
+
+	// Get the user's joined_groups
+	var joinedGroupsJSON string
+	err := conn.QueryRow(search_query, userId).Scan(&joinedGroupsJSON)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return http.StatusNotFound, fmt.Errorf("user not found with id: %s", userId)
+		}
+		return http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Unmarshal joined_groups
+	var joinedGroups []string
+	if len(joinedGroupsJSON) > 0 {
+		if err := json.Unmarshal([]byte(joinedGroupsJSON), &joinedGroups); err != nil {
+			return http.StatusInternalServerError, fmt.Errorf("error unmarshalling joined_groups: %w", err)
+		}
+	}
+
+	// Add the group to the joined_groups
+	joinedGroups = append(joinedGroups, groupId)
+
+	// Serialize joined_groups to JSON
+	updatedGroupsJSON, err := json.Marshal(joinedGroups)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error serializing joined_groups: %w", err)
+	}
+
+	// Update the user's joined_groups
+	_, err = conn.Exec(update_query, string(updatedGroupsJSON), userId)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error updating joined_groups: %w", err)
+	}
+
+	return http.StatusOK, nil
+}
+
+func RemoveGroupFromJoinedList(userId string, groupId string) (int, error) {
+	conn := db.GetDBConnection()
+
+	search_query := `SELECT joined_groups FROM users WHERE id = $1`
+	update_query := `UPDATE users SET joined_groups = $1 WHERE id = $2`
+
+	// Get the user's joined_groups
+	var joinedGroupsJSON string
+	err := conn.QueryRow(search_query, userId).Scan(&joinedGroupsJSON)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return http.StatusNotFound, fmt.Errorf("user not found with id: %s", userId)
+		}
+		return http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
+	}
+
+	// Unmarshal joined_groups
+	var joinedGroups []string
+	if len(joinedGroupsJSON) > 0 {
+		if err := json.Unmarshal([]byte(joinedGroupsJSON), &joinedGroups); err != nil {
+			return http.StatusInternalServerError, fmt.Errorf("error unmarshalling joined_groups: %w", err)
+		}
+	}
+
+	// Remove the group id from the joined_groups
+	result := []string{}
+	for _, str := range joinedGroups {
+		if str != groupId {
+			result = append(result, str)
+		}
+	}
+
+	// Serialize joined_groups to JSON
+	updatedGroupsJSON, err := json.Marshal(result)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error serializing joined_groups: %w", err)
+	}
+
+	// Update the user's joined_groups
+	_, err = conn.Exec(update_query, string(updatedGroupsJSON), userId)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error updating joined_groups: %w", err)
+	}
+
+	return http.StatusOK, nil
+}

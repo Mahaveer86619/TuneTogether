@@ -52,6 +52,23 @@ func GetAllGroupsController(w http.ResponseWriter, r *http.Request) {
 	successResponse.JSON(w)
 }
 
+func GetAllPublicGroupController(w http.ResponseWriter, r *http.Request) {
+	groups, statusCode, err := impl.GetAllPublicGroups()
+	if err != nil {
+		failureResponse := types.Failure{}
+		failureResponse.SetStatusCode(statusCode)
+		failureResponse.SetMessage(err.Error())
+		failureResponse.JSON(w)
+		return
+	}
+
+	successResponse := &types.Success{}
+	successResponse.SetStatusCode(statusCode)
+	successResponse.SetData(groups)
+	successResponse.SetMessage("Public groups fetched successfully")
+	successResponse.JSON(w)
+}
+
 func GetGroupByIDController(w http.ResponseWriter, r *http.Request) {
 	group_id := r.URL.Query().Get("id")
 	if group_id == "" {

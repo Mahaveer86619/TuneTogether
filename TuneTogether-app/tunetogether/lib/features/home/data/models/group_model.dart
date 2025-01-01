@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:tunetogether/common/app_constants/app_constants.dart';
 import 'package:tunetogether/features/home/domain/entities/group_entity.dart';
 
@@ -13,11 +14,11 @@ class GroupModel extends GroupEntity{
 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      creatorId: json['creator_id'],
-      displayPicture: json['display_picture'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      creatorId: json['creator_id'] ?? '',
+      displayPicture: json['display_picture'] ?? defaultGroupAvatarUrl,
       type: groupTypeFromString(json['type']),
     );
   }

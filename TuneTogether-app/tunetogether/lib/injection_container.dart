@@ -8,6 +8,12 @@ import 'package:tunetogether/features/auth/domain/repositories/auth_repository.d
 import 'package:tunetogether/features/auth/domain/usecases/sign_in_usecase.dart';
 import 'package:tunetogether/features/auth/domain/usecases/sign_up_usecase.dart';
 import 'package:tunetogether/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:tunetogether/features/home/data/repositories/home_repository_impl.dart';
+import 'package:tunetogether/features/home/data/sources/remote_source.dart';
+import 'package:tunetogether/features/home/domain/repositories/home_repositories.dart';
+import 'package:tunetogether/features/home/domain/usecases/get_joined_groups_details_by_id_usecase.dart';
+import 'package:tunetogether/features/home/domain/usecases/get_user_details_usecase.dart';
+import 'package:tunetogether/features/home/presentation/bloc/home_bloc.dart';
 
 import 'common/app_user_cubit/app_user_cubit.dart';
 
@@ -73,6 +79,10 @@ Future<void> dataSources() async {
   sl.registerFactory<AuthDatasource>(() => AuthDatasource(
         logger: sl<Logger>(),
       ));
+  //* Home DataSource
+  sl.registerFactory<HomeRemoteSource>(() => HomeRemoteSource(
+        logger: sl<Logger>(),
+      ));
 }
 
 Future<void> repositories() async {
@@ -81,6 +91,13 @@ Future<void> repositories() async {
     () => AuthRepositoryImp(
       logger: sl<Logger>(),
       authDataSource: sl<AuthDatasource>(),
+    ),
+  );
+  //* Home Repository
+  sl.registerFactory<HomeRepository>(
+    () => HomeRepositoryImpl(
+      logger: sl<Logger>(),
+      homeDataSource: sl<HomeRemoteSource>(),
     ),
   );
 }
@@ -95,6 +112,16 @@ Future<void> useCases() async {
   sl.registerFactory<SignInUsecase>(
     () => SignInUsecase(authRepository: sl<AuthRepository>()),
   );
+
+  //* Home UseCase
+  // Get joined groups details by id
+  sl.registerFactory<GetJoinedGroupsDetailsByIdUsecase>(
+    () => GetJoinedGroupsDetailsByIdUsecase(repository: sl<HomeRepository>()),
+  );
+  // Get user details by id
+  sl.registerFactory<GetUserDetailsUsecase>(
+    () => GetUserDetailsUsecase(repository: sl<HomeRepository>()),
+  );
 }
 
 Future<void> blocs() async {
@@ -105,6 +132,16 @@ Future<void> blocs() async {
       logger: sl<Logger>(),
       signUpUsecase: sl<SignUpUsecase>(),
       signInUsecase: sl<SignInUsecase>(),
+    ),
+  );
+
+  //* Home Bloc
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(
+      logger: sl<Logger>(),
+      appUserCubit: sl<AppUserCubit>(),
+      getUserDetailsEvent: sl<GetUserDetailsUsecase>(),
+      getJoinedGroupsEvent: sl<GetJoinedGroupsDetailsByIdUsecase>(),
     ),
   );
 }

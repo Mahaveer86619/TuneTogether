@@ -11,6 +11,8 @@ class UserModel extends UserEntity {
     required super.email,
     required super.username,
     required super.profilePic,
+    required super.status,
+    required super.joinedGroups,
     required this.token,
     required this.refreshToken,
   });
@@ -21,6 +23,8 @@ class UserModel extends UserEntity {
       email: '',
       username: '',
       profilePic: '',
+      status: '',
+      joinedGroups: [],
       token: '',
       refreshToken: '',
     );
@@ -32,6 +36,12 @@ class UserModel extends UserEntity {
       email: json['email'] ?? '',
       username: json['name'] ?? '',
       profilePic: json['profile_pic'] ?? defaultAvatarUrl,
+      status: json['status'] ?? 'active',
+      joinedGroups: (json['joined_groups'] is List)
+          ? List<String>.from(json['joined_groups'])
+          : (json['joined_groups'] is String)
+              ? json['joined_groups'].split(',') // Handle comma-separated string
+              : [],
       token: json['token'] ?? '',
       refreshToken: json['refresh_token'] ?? '',
     );
@@ -43,6 +53,8 @@ class UserModel extends UserEntity {
       email: email,
       username: username,
       profilePic: profilePic,
+      status: status,
+      joinedGroups: joinedGroups,
     );
   }
 
@@ -52,6 +64,8 @@ class UserModel extends UserEntity {
       'email': email,
       'username': username,
       'profile_pic': profilePic,
+      'status': status,
+      'joined_groups': joinedGroups,
       'token': token,
       'refresh_token': refreshToken,
     };
@@ -64,6 +78,8 @@ class UserModel extends UserEntity {
     email: $email, 
     username: $username, 
     profilePic: $profilePic, 
+    status: $status,
+    joinedGroups: $joinedGroups,
     token: $token, 
     refreshToken: $refreshToken, 
     }''';

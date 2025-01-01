@@ -6,6 +6,7 @@ import 'package:tunetogether/common/app_user_cubit/app_user_cubit.dart';
 import 'package:tunetogether/core/services/notifications.dart';
 import 'package:tunetogether/core/theme/app_theme.dart';
 import 'package:tunetogether/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:tunetogether/features/home/presentation/bloc/home_bloc.dart';
 import 'package:tunetogether/injection_container.dart' as di;
 
 void main() {
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<AuthBloc>(
           create: (context) => di.sl<AuthBloc>(),
+        ),
+        BlocProvider<HomeBloc>(
+          create: (context) => di.sl<HomeBloc>(),
         ),
       ],
       child: MaterialApp(

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 String prefUserKey = 'user';
 String prefTokenKey = 'token';
 String prefRefreshTokenKey = 'refresh_token';
@@ -10,6 +12,7 @@ String notificationChannelName = 'Clearmind Notifications';
 String notificationChannelDescription = 'Notifications for Clearmind';
 
 const String defaultAvatarUrl = 'https://feji.us/a593ri';
+const String defaultGroupAvatarUrl = 'https://tinyurl.com/223bcs7k';
 
 const String baseUrl = 'http://192.168.29.150:5060';
 
@@ -24,6 +27,7 @@ String groupTypeToString(GroupTypes type) {
     case GroupTypes.private:
       return 'private';
     default:
+      debugPrint("Unknown group type '$type', defaulting to 'public'.");
       return 'public';
   }
 }
@@ -36,6 +40,7 @@ GroupTypes groupTypeFromString(String type) {
     case 'private':
       return GroupTypes.private;
     default:
+      debugPrint("Unknown group type '$type', defaulting to 'public'.");
       return GroupTypes.public;
   }
 }

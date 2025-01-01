@@ -35,7 +35,7 @@ func CreateGroup(group *types.GroupRequest) (*types.Group, int, error) {
 		return nil, http.StatusInternalServerError, fmt.Errorf("error checking existing user: %w", err)
 	}
 
-	// Create user
+	// Create group
 	var newGroup types.Group
 	group_id := uuid.New().String()
 
@@ -64,6 +64,17 @@ func CreateGroup(group *types.GroupRequest) (*types.Group, int, error) {
 		return nil, http.StatusInternalServerError, fmt.Errorf("error creating group: %w", err)
 	}
 
+	// add row to group_members and add group to joined groups of creator
+	status_code, err := AddGroupMember(&types.GroupMemberJoinRequest{
+		GroupID: newGroup.ID,
+		UserID:  newGroup.CreatorID,
+		Role:    "admin",
+	})
+
+	if err != nil {
+		return nil, status_code, err
+	}
+
 	return &newGroup, http.StatusCreated, nil
 }
 
@@ -73,6 +84,49 @@ func GetAllGroups() ([]*types.Group, int, error) {
 	query := `
 	  SELECT *
 	  FROM groups
+	`
+
+	rows, err := conn.Query(query)
+	if err != nil {
+		return nil, http.StatusInternalServerError, fmt.Errorf("error querying groups: %w", err)
+	}
+	defer rows.Close()
+
+	var groups []*types.Group
+	for rows.Next() {
+		var group types.Group
+
+		if err := rows.Scan(
+			&group.ID,
+			&group.Name,
+			&group.Description,
+			&group.CreatorID,
+			&group.DisplayPicture,
+			&group.Type,
+			&group.CreatedAt,
+			&group.UpdatedAt,
+		); err != nil {
+			return nil, http.StatusInternalServerError, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		groups = append(groups, &group)
+	}
+
+	// Return empty array if no groups found
+	if len(groups) == 0 {
+		return []*types.Group{}, http.StatusOK, nil
+	}
+
+	return groups, http.StatusOK, nil
+}
+
+func GetAllPublicGroups() ([]*types.Group, int, error) {
+	conn := db.GetDBConnection()
+
+	query := `
+	  SELECT *
+	  FROM groups
+	  WHERE type = 'public'
 	`
 
 	rows, err := conn.Query(query)
@@ -306,6 +360,13 @@ func AddGroupMember(request *types.GroupMemberJoinRequest) (int, error) {
 		return http.StatusInternalServerError, fmt.Errorf("error adding group member: %w", err)
 	}
 
+	// add group to joined groups of user
+	status_code, err := AddGroupToJoinedList(request.UserID, request.GroupID)
+
+	if err != nil {
+		return status_code, err
+	}
+
 	return http.StatusCreated, nil
 }
 
@@ -358,6 +419,13 @@ func DeleteGroupMember(groupID string, groupMemberID string) (int, error) {
 
 	if rowsAffected == 0 {
 		return http.StatusNotFound, fmt.Errorf("group member not found")
+	}
+
+	// remove group from joined groups of user
+	status_code, err := RemoveGroupFromJoinedList(groupMemberID, groupID)
+
+	if err != nil {
+		return status_code, err
 	}
 
 	return http.StatusOK, nil
