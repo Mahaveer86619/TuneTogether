@@ -28,6 +28,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _getJoinedGroupsEvent = getJoinedGroupsEvent,
         super(HomeInitial()) {
     on<GetJoinedGroupsEvent>(_onRetriveUserEvent);
+    on<LogOutEvent>(_onLogOutEvent);
   }
 
   Future<void> _onRetriveUserEvent(
@@ -91,5 +92,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       _logger.e(e.toString());
       emit(HomeError(e.toString()));
     }
+  }
+
+  Future<void> _onLogOutEvent(
+    LogOutEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    await _appUserCubit.signOut();
   }
 }

@@ -23,18 +23,18 @@ class GroupTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                height: 50,
-                width: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        Uri.parse(group.displayPicture).toString()),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+              // Container(
+              //   height: 50,
+              //   width: 50,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(10),
+              //     image: DecorationImage(
+              //       image: NetworkImage(
+              //           Uri.parse(group.displayPicture).toString()),
+              //       fit: BoxFit.cover,
+              //     ),
+              //   ),
+              // ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,

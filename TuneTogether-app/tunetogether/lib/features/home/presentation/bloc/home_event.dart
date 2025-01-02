@@ -27,3 +27,5 @@ class JoinGroupEvent extends HomeEvent {
     required this.role,
   });
 }
+
+class LogOutEvent extends HomeEvent {}

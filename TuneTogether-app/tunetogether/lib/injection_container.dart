@@ -14,6 +14,11 @@ import 'package:tunetogether/features/home/domain/repositories/home_repositories
 import 'package:tunetogether/features/home/domain/usecases/get_joined_groups_details_by_id_usecase.dart';
 import 'package:tunetogether/features/home/domain/usecases/get_user_details_usecase.dart';
 import 'package:tunetogether/features/home/presentation/bloc/home_bloc.dart';
+import 'package:tunetogether/features/join_groups/data/repository/join_group_repository_impl.dart';
+import 'package:tunetogether/features/join_groups/data/sources/join_groups_sources.dart';
+import 'package:tunetogether/features/join_groups/domain/repository/join_group_repository.dart';
+import 'package:tunetogether/features/join_groups/domain/usecases/get_public_groups_usecase.dart';
+import 'package:tunetogether/features/join_groups/presentation/bloc/join_group_bloc.dart';
 
 import 'common/app_user_cubit/app_user_cubit.dart';
 
@@ -76,13 +81,23 @@ Future<void> core() async {
 
 Future<void> dataSources() async {
   //* Auth DataSource
-  sl.registerFactory<AuthDatasource>(() => AuthDatasource(
-        logger: sl<Logger>(),
-      ));
+  sl.registerFactory<AuthDatasource>(
+    () => AuthDatasource(
+      logger: sl<Logger>(),
+    ),
+  );
   //* Home DataSource
-  sl.registerFactory<HomeRemoteSource>(() => HomeRemoteSource(
-        logger: sl<Logger>(),
-      ));
+  sl.registerFactory<HomeRemoteSource>(
+    () => HomeRemoteSource(
+      logger: sl<Logger>(),
+    ),
+  );
+  //* JoinGroup DataSource
+  sl.registerFactory<JoinGroupsSources>(
+    () => JoinGroupsSources(
+      logger: sl<Logger>(),
+    ),
+  );
 }
 
 Future<void> repositories() async {
@@ -98,6 +113,13 @@ Future<void> repositories() async {
     () => HomeRepositoryImpl(
       logger: sl<Logger>(),
       homeDataSource: sl<HomeRemoteSource>(),
+    ),
+  );
+  //* JoinGroup Repository
+  sl.registerFactory<JoinGroupRepository>(
+    () => JoinGroupRepositoryImpl(
+      logger: sl<Logger>(),
+      joinGroupsSources: sl<JoinGroupsSources>(),
     ),
   );
 }
@@ -122,6 +144,13 @@ Future<void> useCases() async {
   sl.registerFactory<GetUserDetailsUsecase>(
     () => GetUserDetailsUsecase(repository: sl<HomeRepository>()),
   );
+
+  //* JoinGroup UseCase
+  // Get public groups
+  sl.registerFactory<GetPublicGroupsUsecase>(
+    () =>
+        GetPublicGroupsUsecase(joinGroupRepository: sl<JoinGroupRepository>()),
+  );
 }
 
 Future<void> blocs() async {
@@ -142,6 +171,15 @@ Future<void> blocs() async {
       appUserCubit: sl<AppUserCubit>(),
       getUserDetailsEvent: sl<GetUserDetailsUsecase>(),
       getJoinedGroupsEvent: sl<GetJoinedGroupsDetailsByIdUsecase>(),
+    ),
+  );
+
+  //* JoinGroup Bloc
+  sl.registerFactory<JoinGroupBloc>(
+    () => JoinGroupBloc(
+      logger: sl<Logger>(),
+      appUserCubit: sl<AppUserCubit>(),
+      getPublicGroupsUsecase: sl<GetPublicGroupsUsecase>(),
     ),
   );
 }

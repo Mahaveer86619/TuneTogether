@@ -138,43 +138,5 @@ class HomeRemoteSource {
     }
   }
 
-  Future<DataState<List<Map<String, dynamic>>>> getPublicGroups({
-    required String token,
-  }) async {
-    try {
-      logger.i('Getting public groups');
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/v1/groups/public'),
-        headers: {
-          'Authorization': "Bearer $token",
-        },
-      );
-
-      if (response.statusCode != 200) {
-        return DataFailure(
-          getErrorMessage(response.statusCode),
-          response.statusCode,
-        );
-      }
-
-      logger.i('Public groups fetched');
-      logger.d(response.body);
-
-      final List<dynamic> data = jsonDecode(response.body);
-
-      return DataSuccess(
-        data.map((e) => e as Map<String, dynamic>).toList(),
-        'Public groups fetched',
-      );
-    } catch (error) {
-      if (error is SocketException || error is TimeoutException) {
-        logger.e('Network error: $error');
-        return DataFailure('Network error: $error', -1);
-      } else {
-        logger.e('Unknown error: $error');
-        return DataFailure('Unknown error: $error', -1);
-      }
-    }
-  }
+  
 }

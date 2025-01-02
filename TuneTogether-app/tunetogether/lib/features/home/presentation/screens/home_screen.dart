@@ -144,33 +144,38 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _buildUserDetails(BuildContext context, UserEntity user) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          radius: 30,
-          backgroundImage: NetworkImage(user.profilePic),
-        ),
-        const SizedBox(width: 10),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              user.username,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-            ),
-            Text(
-              user.email,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-            ),
-          ],
-        ),
-      ],
+    return GestureDetector(
+      onTap: () {
+        _changeScreen('/profile');
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundImage: NetworkImage(user.profilePic),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.username,
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+              ),
+              Text(
+                user.email,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

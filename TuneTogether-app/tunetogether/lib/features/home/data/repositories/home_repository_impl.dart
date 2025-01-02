@@ -77,33 +77,6 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<DataState<List<GroupEntity>>> getPublicGroups({
-    required String token,
-  }) async {
-    try {
-      final response = await homeDataSource.getPublicGroups(
-        token: token,
-      );
-
-      if (response is DataFailure) {
-        logger.e("failure: ${response.message}");
-        return DataFailure(response.message!, -1);
-      }
-
-      if (response.data == null) {
-        return DataFailure('No data found', -1);
-      }
-
-      final data = response.data;
-      final groups = data!.map((group) => GroupModel.fromJson(group)).toList();
-      return DataSuccess(groups, 'Public groups fetched');
-    } catch (e) {
-      logger.e(e.toString());
-      return DataFailure(e.toString(), -1);
-    }
-  }
-
-  @override
   Future<DataState<UserEntity>> getUserById({
     required String token,
     required String userId,

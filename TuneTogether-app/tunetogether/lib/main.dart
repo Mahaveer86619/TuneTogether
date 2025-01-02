@@ -7,6 +7,7 @@ import 'package:tunetogether/core/services/notifications.dart';
 import 'package:tunetogether/core/theme/app_theme.dart';
 import 'package:tunetogether/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:tunetogether/features/home/presentation/bloc/home_bloc.dart';
+import 'package:tunetogether/features/join_groups/presentation/bloc/join_group_bloc.dart';
 import 'package:tunetogether/injection_container.dart' as di;
 
 void main() {
@@ -37,6 +38,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<HomeBloc>(
           create: (context) => di.sl<HomeBloc>(),
+        ),
+        BlocProvider<JoinGroupBloc>(
+          create: (context) => di.sl<JoinGroupBloc>(),
         ),
       ],
       child: MaterialApp(
